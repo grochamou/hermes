@@ -1,0 +1,14 @@
+version: '3'
+services:
+  hermes-server:
+    container_name: hermers-server
+    build: ./hermes-server
+    image: hermes-server:latest
+    ports:
+      - 58080:8080
+    networks:
+      - hermes
+
+networks:
+  hermes:
+    name: hermes
