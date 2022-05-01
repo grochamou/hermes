@@ -137,6 +137,36 @@
 				</dependency>
 			</dependencies>
 		</profile>
+		<profile>
+			<id>heroku</id>
+			<activation>
+				<property>
+					<name>spring.profiles.active</name>
+					<value>heroku</value>
+				</property>
+			</activation>
+			<properties>
+				<spring.profiles.active>heroku</spring.profiles.active>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.heroku.sdk</groupId>
+						<artifactId>heroku-maven-plugin</artifactId>
+						<configuration>
+							<appName>grochamou-hermes-server</appName>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 
 </project>
