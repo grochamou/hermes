@@ -77,6 +77,18 @@
 				<spring.profiles.active>docker</spring.profiles.active>
 			</properties>
 		</profile>
+		<profile>
+			<id>heroku</id>
+			<activation>
+				<property>
+					<name>spring.profiles.active</name>
+					<value>heroku</value>
+				</property>
+			</activation>
+			<properties>
+				<spring.profiles.active>heroku</spring.profiles.active>
+			</properties>
+		</profile>
 	</profiles>
 
 </project>
