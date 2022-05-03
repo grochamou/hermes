@@ -1,7 +1,7 @@
 version: '3'
 services:
   hermes-server:
-    container_name: hermers-server
+    container_name: hermes-server
     build: ./hermes-server
     image: hermes-server:latest
     ports:
