@@ -7,10 +7,12 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -130,8 +132,17 @@ public class HermesController {
     }
 
     protected <T> ResponseEntity<T> fail(RestClientException e) {
-        return ResponseEntity.internalServerError()
+        return ResponseEntity.status(getResponseStatus(e))
                 .header(HermesClient.REST_CLIENT_RESPONSE_EXCEPTION_HEADER, hermesClient.getErrorMessage(e)).build();
+    }
+
+    private int getResponseStatus(RestClientException e) {
+        int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
+        if (e instanceof RestClientResponseException) {
+            RestClientResponseException ex = (RestClientResponseException) e;
+            status = ex.getRawStatusCode();
+        }
+        return status;
     }
 
 }
