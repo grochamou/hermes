@@ -1,4 +1,4 @@
-package brussels.spfb.hermes.controller;
+package onl.gcm.hermes.controller;
 
 import javax.annotation.PostConstruct;
 
@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import brussels.spfb.hermes.client.DistantWorldClient;
-import brussels.spfb.hermes.dto.DistantWorldDTO;
+import onl.gcm.hermes.client.DistantWorldClient;
+import onl.gcm.hermes.dto.DistantWorldDTO;
 
 @RestController
 @PropertySource("classpath:servers-${spring.profiles.active}.properties")

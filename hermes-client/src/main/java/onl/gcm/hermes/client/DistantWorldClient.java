@@ -1,10 +1,10 @@
-package brussels.spfb.hermes.client;
+package onl.gcm.hermes.client;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 
-import brussels.spfb.hermes.dto.DistantWorldDTO;
+import onl.gcm.hermes.dto.DistantWorldDTO;
 
 @Component
 public class DistantWorldClient extends HermesClient {

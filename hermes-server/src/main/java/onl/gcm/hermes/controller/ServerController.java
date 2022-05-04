@@ -1,4 +1,4 @@
-package brussels.spfb.hermes.controller;
+package onl.gcm.hermes.controller;
 
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.ResponseEntity;

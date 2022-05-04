@@ -1,4 +1,4 @@
-package brussels.spfb.hermes.dto;
+package onl.gcm.hermes.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

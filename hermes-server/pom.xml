@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>brussels.spfb.hermes</groupId>
+		<groupId>onl.gcm.hermes</groupId>
 		<artifactId>hermes</artifactId>
 		<version>${revision}</version>
 	</parent>
 
-	<groupId>brussels.spfb.hermes</groupId>
+	<groupId>onl.gcm.hermes</groupId>
 	<artifactId>hermes-server</artifactId>
 	<version>${revision}</version>
 	<packaging>war</packaging>
@@ -48,7 +48,7 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>brussels.spfb.hermes</groupId>
+			<groupId>onl.gcm.hermes</groupId>
 			<artifactId>hermes-client</artifactId>
 			<version>${revision}</version>
 		</dependency>
@@ -73,7 +73,7 @@
 						<configuration>
 							<artifactItems>
 								<artifactItem>
-									<groupId>brussels.spfb.hermes</groupId>
+									<groupId>onl.gcm.hermes</groupId>
 									<artifactId>hermes-client</artifactId>
 									<version>${project.parent.version}</version>
 									<type>jar</type>
@@ -161,7 +161,7 @@
 						<groupId>com.heroku.sdk</groupId>
 						<artifactId>heroku-maven-plugin</artifactId>
 						<configuration>
-							<appName>grochamou-hermes-server</appName>
+							<appName>gcm-hermes-server</appName>
 							<jdkVersion>1.8</jdkVersion>
 						</configuration>
 					</plugin>

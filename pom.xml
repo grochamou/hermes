@@ -9,7 +9,7 @@
         <version>2.6.7</version>
     </parent>
 
-    <groupId>brussels.spfb.hermes</groupId>
+    <groupId>onl.gcm.hermes</groupId>
     <artifactId>hermes</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>

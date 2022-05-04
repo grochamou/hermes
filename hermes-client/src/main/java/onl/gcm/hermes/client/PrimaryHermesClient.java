@@ -1,4 +1,4 @@
-package brussels.spfb.hermes.client;
+package onl.gcm.hermes.client;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;

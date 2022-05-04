@@ -1,4 +1,4 @@
-package brussels.spfb.hermes.client;
+package onl.gcm.hermes.client;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;

@@ -1,4 +1,4 @@
-package brussels.spfb.hermes.controller;
+package onl.gcm.hermes.controller;
 
 import java.text.MessageFormat;
 
@@ -16,9 +16,9 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import brussels.spfb.hermes.client.HermesClient;
-import brussels.spfb.hermes.logging.LogEntry;
-import brussels.spfb.hermes.server.ResponseEntityCache;
+import onl.gcm.hermes.logging.LogEntry;
+import onl.gcm.hermes.server.ResponseEntityCache;
+import onl.gcm.hermes.client.HermesClient;
 
 public class HermesController {
 

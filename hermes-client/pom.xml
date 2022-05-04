@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>brussels.spfb.hermes</groupId>
+		<groupId>onl.gcm.hermes</groupId>
 		<artifactId>hermes</artifactId>
 		<version>${revision}</version>
 	</parent>
 
-	<groupId>brussels.spfb.hermes</groupId>
+	<groupId>onl.gcm.hermes</groupId>
 	<artifactId>hermes-client</artifactId>
 	<version>${revision}</version>
 	<packaging>jar</packaging>

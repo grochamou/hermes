@@ -1,4 +1,4 @@
-package brussels.spfb.hermes.server;
+package onl.gcm.hermes.server;
 
 import java.text.MessageFormat;
 import java.util.Date;

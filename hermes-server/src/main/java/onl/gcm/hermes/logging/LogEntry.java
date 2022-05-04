@@ -1,4 +1,4 @@
-package brussels.spfb.hermes.logging;
+package onl.gcm.hermes.logging;
 
 import java.util.Date;
 

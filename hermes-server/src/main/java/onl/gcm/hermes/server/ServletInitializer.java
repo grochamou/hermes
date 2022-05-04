@@ -1,4 +1,4 @@
-package brussels.spfb.hermes.server;
+package onl.gcm.hermes.server;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
