@@ -40,6 +40,10 @@ public abstract class HermesClient {
         return version;
     }
 
+    public static String encodeExceptionMessage(Exception e) {
+        return e.getMessage().replace(LF, BACKSLASH + LF).replace(TAB, BACKSLASH + TAB);
+    }
+
     public RestTemplate createRestTemplate() {
         return new RestTemplate(createClientHttpRequestFactory());
     }
@@ -76,10 +80,6 @@ public abstract class HermesClient {
             return false;
         }
         return true;
-    }
-
-    public String encodeExceptionMessage(Exception e) {
-        return e.getMessage().replace(LF, BACKSLASH + LF).replace(TAB, BACKSLASH + TAB);
     }
 
     protected HermesClient() {
