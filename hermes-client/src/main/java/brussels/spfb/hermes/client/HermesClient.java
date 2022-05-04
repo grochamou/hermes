@@ -1,7 +1,5 @@
 package brussels.spfb.hermes.client;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpEntity;
@@ -10,6 +8,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
@@ -20,6 +19,10 @@ public abstract class HermesClient {
 
     public static final String REST_CLIENT_RESPONSE_EXCEPTION_HEADER = "RestClientResponseException";
     public static final String VERSION_HEADER = "version";
+
+    private static final String LF = "\\n";
+    private static final String BACKSLASH = "\\";
+    private static final String TAB = "\\t";
 
     @Value("${hermes.server.url}")
     private String hermesServerUrl;
@@ -45,17 +48,16 @@ public abstract class HermesClient {
     // RestClientResponseException, else get the normal exception message.
     public String getErrorMessage(Exception e) {
         String errorMessage = e.getMessage();
-        if (e instanceof RestClientResponseException) {
+        HttpHeaders headers = null;
+        if (e instanceof HttpServerErrorException) {
+            HttpServerErrorException ex = (HttpServerErrorException) e;
+            headers = ex.getResponseHeaders();
+        } else if (e instanceof RestClientResponseException) {
             RestClientResponseException ex = (RestClientResponseException) e;
-            HttpHeaders headers = ex.getResponseHeaders();
-            if (headers != null) {
-                List<String> restClientResponseException = headers.get(REST_CLIENT_RESPONSE_EXCEPTION_HEADER);
-                if (restClientResponseException != null) {
-                    errorMessage = restClientResponseException.get(0);
-                }
-            }
+            headers = ex.getResponseHeaders();
         }
-        return errorMessage;
+        String headerErrorMessage = headers == null ? null : headers.getFirst(REST_CLIENT_RESPONSE_EXCEPTION_HEADER);
+        return headerErrorMessage == null ? errorMessage : headerErrorMessage;
     }
 
     public boolean isHermesAlive() {
@@ -74,6 +76,10 @@ public abstract class HermesClient {
             return false;
         }
         return true;
+    }
+
+    public String encodeExceptionMessage(Exception e) {
+        return e.getMessage().replace(LF, BACKSLASH + LF).replace(TAB, BACKSLASH + TAB);
     }
 
     protected HermesClient() {

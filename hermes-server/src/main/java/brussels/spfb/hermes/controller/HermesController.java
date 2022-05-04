@@ -93,9 +93,6 @@ public class HermesController {
         try {
             response = hermesClient.createRestTemplate().postForEntity(url, request, responseType, uriVariables);
             end(entry, response);
-        } catch (HttpStatusCodeException e) {
-            response = fail(e);
-            end(entry, e);
         } catch (RestClientException e) {
             response = fail(e);
             end(entry, e);
@@ -108,34 +105,33 @@ public class HermesController {
         entry.setDuration(System.currentTimeMillis() - entry.getDate().getTime());
         entry.setResponseStatus(response.getStatusCode().toString());
         // "Preconditions" and logging arguments should not require evaluation.
-        logger.info(MessageFormat.format(CACHED_FROM_TO_PATTERN, entry.getApplicationUrl(),
-                response.getStatusCode().toString(), entry.isCached() ? CACHED : NOT_CACHED, entry.getDuration()));
+        logger.info(MessageFormat.format(CACHED_FROM_TO_PATTERN, entry.getApplicationUrl(), entry.getResponseStatus(),
+                entry.isCached() ? CACHED : NOT_CACHED, entry.getDuration()));
     }
 
     @SuppressWarnings("java:S2629")
     protected void end(LogEntry entry, HttpStatusCodeException e) {
         entry.setDuration(System.currentTimeMillis() - entry.getDate().getTime());
         entry.setResponseStatus(e.getStatusCode().toString());
-        entry.setErrorMessage(e.getMessage());
+        entry.setErrorMessage(hermesClient.getErrorMessage(e));
         // "Preconditions" and logging arguments should not require evaluation.
-        logger.info(MessageFormat.format(CACHED_FROM_TO_PATTERN, entry.getApplicationUrl(), e.getMessage(),
+        logger.info(MessageFormat.format(CACHED_FROM_TO_PATTERN, entry.getApplicationUrl(), entry.getErrorMessage(),
                 entry.isCached() ? CACHED : NOT_CACHED, entry.getDuration()));
-
     }
 
     @SuppressWarnings("java:S2629")
     protected void end(LogEntry entry, RestClientException e) {
         entry.setDuration(System.currentTimeMillis() - entry.getDate().getTime());
         entry.setResponseStatus(e.getClass().getName());
-        entry.setErrorMessage(e.getMessage());
+        entry.setErrorMessage(hermesClient.getErrorMessage(e));
         // "Preconditions" and logging arguments should not require evaluation.
-        logger.info(MessageFormat.format(CACHED_FROM_TO_PATTERN, entry.getApplicationUrl(), e.getMessage(),
+        logger.info(MessageFormat.format(CACHED_FROM_TO_PATTERN, entry.getApplicationUrl(), entry.getErrorMessage(),
                 entry.isCached() ? CACHED : NOT_CACHED, entry.getDuration()));
     }
 
     protected <T> ResponseEntity<T> fail(RestClientException e) {
         return ResponseEntity.internalServerError()
-                .header(HermesClient.REST_CLIENT_RESPONSE_EXCEPTION_HEADER, e.getMessage()).build();
+                .header(HermesClient.REST_CLIENT_RESPONSE_EXCEPTION_HEADER, hermesClient.getErrorMessage(e)).build();
     }
 
 }
