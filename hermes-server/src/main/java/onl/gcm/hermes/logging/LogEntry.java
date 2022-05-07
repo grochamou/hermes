@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 public class LogEntry {
 
     private final Date date = new Date();
+    private String remoteHost;
+    private String remoteApplication;
     private String requestUrl;
     private String applicationUrl;
     private boolean cached;
