@@ -10,11 +10,13 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.stream.StreamSupport;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -31,6 +33,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import onl.gcm.hermes.client.HermesClient;
 import onl.gcm.hermes.logging.LogEntry;
 import onl.gcm.hermes.server.ResponseEntityCache;
+import onl.gcm.hermes.server.SpringUtils;
 
 @PropertySource("classpath:servers.properties")
 @PropertySource("classpath:servers-${spring.profiles.active}.properties")
@@ -48,10 +51,12 @@ public class HermesController {
     private static final String LOCALHOST_HOST = "localhost";
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final ResponseEntityCache cache = new ResponseEntityCache(getClass().getName());
 
-    @Autowired
-    private ConfigurableEnvironment env;
+    @Value("${default.server.cache.lifetime}")
+    private long defaultCacheLifetime;
+
+    @Value("${default.server.cache.prune.delay}")
+    private long defaultCachePruneDelay;
 
     @Autowired
     private HttpServletRequest httpServletRequest;
@@ -59,7 +64,9 @@ public class HermesController {
     @Autowired
     private HermesClient hermesClient;
 
-    private HashMap<String, String> applications;
+    private static HashMap<String, String> applications;
+
+    private ResponseEntityCache cache;
 
     protected void setCacheLifetime(long lifetime) {
         cache.setLifetime(lifetime);
@@ -69,35 +76,36 @@ public class HermesController {
         cache.setPruneDelay(pruneDelay);
     }
 
-    @SuppressWarnings("java:S2629")
     protected LogEntry begin(String url) {
-        LogEntry entry = new LogEntry();
+        LogEntry logEntry = new LogEntry();
         String remoteHost = httpServletRequest.getRemoteHost();
         String remoteApplication = getRemoteApplication(resolveHost(remoteHost));
         UriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentRequest();
         String path = builder.buildAndExpand().getPath();
-        String requestClientVersion = httpServletRequest.getHeader(HermesClient.VERSION_HEADER);
+        String requestClientVersion = httpServletRequest.getHeader(HermesClient.HERMES_CLIENT_VERSION_HEADER);
         String currentClientVersion = hermesClient.getVersion();
-        entry.setRemoteHost(remoteHost);
-        entry.setRemoteApplication(remoteApplication);
-        entry.setRequestUrl(path);
-        entry.setApplicationUrl(url);
-        entry.setRequestClientVersion(requestClientVersion);
-        entry.setClientVersion(currentClientVersion);
-        // "Preconditions" and logging arguments should not require evaluation.
-        logger.info(MessageFormat.format(FROM_TO_PATTERN, remoteApplication == null ? remoteHost : remoteApplication,
-                path, url));
+        logEntry.setRemoteHost(remoteHost);
+        logEntry.setRemoteApplication(remoteApplication);
+        logEntry.setRequestUrl(path);
+        logEntry.setApplicationUrl(url);
+        logEntry.setRequestClientVersion(requestClientVersion);
+        logEntry.setClientVersion(currentClientVersion);
+        // TODO: Publish log entry somewhere.
+
+        String msg = MessageFormat.format(FROM_TO_PATTERN, remoteApplication == null ? remoteHost : remoteApplication,
+                path, url);
+        logger.info(msg);
         if (!currentClientVersion.equals(requestClientVersion)) {
             if (requestClientVersion == null) {
-                // "Preconditions" and logging arguments should not require evaluation.
-                logger.warn(MessageFormat.format(UNKNOWN_CLIENT_PATTERN, path));
+                msg = MessageFormat.format(UNKNOWN_CLIENT_PATTERN, path);
+                logger.warn(msg);
             } else {
-                // "Preconditions" and logging arguments should not require evaluation.
-                logger.warn(MessageFormat.format(VERSION_MISMATCH_PATTERN, path, requestClientVersion,
-                        currentClientVersion));
+                msg = MessageFormat.format(VERSION_MISMATCH_PATTERN, path, requestClientVersion, currentClientVersion);
+                logger.warn(msg);
             }
         }
-        return entry;
+
+        return logEntry;
     }
 
     protected <T> ResponseEntity<T> processGet(boolean cacheable, String url, Class<T> responseType,
@@ -136,47 +144,44 @@ public class HermesController {
         return response;
     }
 
-    @SuppressWarnings("java:S2629")
     protected void end(LogEntry entry, ResponseEntity<?> response) {
         entry.setDuration(System.currentTimeMillis() - entry.getDate().getTime());
         entry.setResponseStatus(response.getStatusCode().toString());
-        // "Preconditions" and logging arguments should not require evaluation.
-        logger.info(MessageFormat.format(CACHED_FROM_TO_PATTERN, entry.getApplicationUrl(), entry.getResponseStatus(),
-                entry.isCached() ? CACHED : NOT_CACHED, entry.getDuration()));
+        String msg = MessageFormat.format(CACHED_FROM_TO_PATTERN, entry.getApplicationUrl(), entry.getResponseStatus(),
+                entry.isCached() ? CACHED : NOT_CACHED, entry.getDuration());
+        logger.info(msg);
     }
 
-    @SuppressWarnings("java:S2629")
     protected void end(LogEntry entry, HttpStatusCodeException e) {
         entry.setDuration(System.currentTimeMillis() - entry.getDate().getTime());
         entry.setResponseStatus(e.getStatusCode().toString());
-        entry.setErrorMessage(hermesClient.getErrorMessage(e));
-        // "Preconditions" and logging arguments should not require evaluation.
-        logger.info(MessageFormat.format(CACHED_FROM_TO_PATTERN, entry.getApplicationUrl(), entry.getErrorMessage(),
-                entry.isCached() ? CACHED : NOT_CACHED, entry.getDuration()));
+        entry.setErrorMessage(HermesClient.getErrorMessage(e));
+        String msg = MessageFormat.format(CACHED_FROM_TO_PATTERN, entry.getApplicationUrl(), entry.getErrorMessage(),
+                entry.isCached() ? CACHED : NOT_CACHED, entry.getDuration());
+        logger.info(msg);
     }
 
-    @SuppressWarnings("java:S2629")
     protected void end(LogEntry entry, RestClientException e) {
         entry.setDuration(System.currentTimeMillis() - entry.getDate().getTime());
         entry.setResponseStatus(e.getClass().getName());
-        entry.setErrorMessage(hermesClient.getErrorMessage(e));
-        // "Preconditions" and logging arguments should not require evaluation.
-        logger.info(MessageFormat.format(CACHED_FROM_TO_PATTERN, entry.getApplicationUrl(), entry.getErrorMessage(),
-                entry.isCached() ? CACHED : NOT_CACHED, entry.getDuration()));
+        entry.setErrorMessage(HermesClient.getErrorMessage(e));
+        String msg = MessageFormat.format(CACHED_FROM_TO_PATTERN, entry.getApplicationUrl(), entry.getErrorMessage(),
+                entry.isCached() ? CACHED : NOT_CACHED, entry.getDuration());
+        logger.info(msg);
     }
 
     protected <T> ResponseEntity<T> fail(RestClientException e) {
         return ResponseEntity.status(getResponseStatus(e))
-                .header(HermesClient.REST_CLIENT_RESPONSE_EXCEPTION_HEADER, HermesClient.encodeExceptionMessage(e))
+                .header(HermesClient.EXCEPTION_MESSAGE_HEADER, HermesClient.encodeExceptionMessage(e))
                 .build();
     }
 
-    private String getRemoteApplication(String remoteHost) {
+    private static String getRemoteApplication(String remoteHost) {
         buildApplicationMap();
         return applications.get(LOCALHOST_ADDRESS.equals(remoteHost) ? LOCALHOST_HOST : remoteHost);
     }
 
-    private String resolveHost(String host) {
+    private static String resolveHost(String host) {
         String hostName;
         try {
             InetAddress address = InetAddress.getByName(host);
@@ -187,7 +192,7 @@ public class HermesController {
         return hostName;
     }
 
-    private void buildApplicationMap() {
+    private static void buildApplicationMap() {
         if (applications != null) {
             return;
         }
@@ -208,8 +213,9 @@ public class HermesController {
     }
 
     // https://stackoverflow.com/questions/23506471/access-all-environment-properties-as-a-map-or-properties-object
-    private Properties getAllProperties() {
+    private static Properties getAllProperties() {
         Properties properties = new Properties();
+        ConfigurableEnvironment env = SpringUtils.getBean(ConfigurableEnvironment.class);
         MutablePropertySources propertySources = env.getPropertySources();
         StreamSupport.stream(propertySources.spliterator(), false)
                 .filter(EnumerablePropertySource.class::isInstance)
@@ -219,13 +225,18 @@ public class HermesController {
         return properties;
     }
 
-    private int getResponseStatus(RestClientException e) {
+    private static int getResponseStatus(RestClientException e) {
         int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
         if (e instanceof RestClientResponseException) {
             RestClientResponseException ex = (RestClientResponseException) e;
             status = ex.getRawStatusCode();
         }
         return status;
+    }
+
+    @PostConstruct
+    private void init() {
+        cache = new ResponseEntityCache(getClass().getName(), defaultCacheLifetime, defaultCachePruneDelay);
     }
 
 }

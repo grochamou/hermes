@@ -14,7 +14,9 @@ import onl.gcm.hermes.client.DistantWorldClient;
 import onl.gcm.hermes.dto.DistantWorldDTO;
 
 @RestController
+@PropertySource("classpath:servers.properties")
 @PropertySource("classpath:servers-${spring.profiles.active}.properties")
+@PropertySource("classpath:hermes.properties")
 @PropertySource("classpath:hermes-${spring.profiles.active}.properties")
 public class DistantWorldController extends HermesController {
 
@@ -22,7 +24,10 @@ public class DistantWorldController extends HermesController {
     private String distantWorldServerUrl;
 
     @Value("${distantworld.server.cache.lifetime}")
-    private long distantWorldServerCacheLifetime;
+    private long cacheLifetime;
+
+    @Value("${distantworld.server.cache.prune.delay}")
+    private long cachePruneDelay;
 
     @Autowired
     private DistantWorldClient distantWorldClient;
@@ -53,9 +58,9 @@ public class DistantWorldController extends HermesController {
     }
 
     @PostConstruct
-    private void init() {
-        setCacheLifetime(distantWorldServerCacheLifetime);
-        setCachePruneDelay(distantWorldServerCacheLifetime);
+    private void initialize() {
+        setCacheLifetime(cacheLifetime);
+        setCachePruneDelay(cachePruneDelay);
     }
 
 }

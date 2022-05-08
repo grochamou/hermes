@@ -65,6 +65,7 @@
 				<spring.profiles.active>development</spring.profiles.active>
 			</properties>
 		</profile>
+
 		<profile>
 			<id>docker</id>
 			<activation>
@@ -77,6 +78,7 @@
 				<spring.profiles.active>docker</spring.profiles.active>
 			</properties>
 		</profile>
+
 		<profile>
 			<id>heroku</id>
 			<activation>

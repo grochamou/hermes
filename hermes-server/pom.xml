@@ -48,6 +48,11 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>onl.gcm.hermes</groupId>
 			<artifactId>hermes-client</artifactId>
 			<version>${revision}</version>
@@ -118,6 +123,7 @@
 				<spring.profiles.active>development</spring.profiles.active>
 			</properties>
 		</profile>
+
 		<profile>
 			<id>docker</id>
 			<activation>
@@ -137,6 +143,7 @@
 				</dependency>
 			</dependencies>
 		</profile>
+
 		<profile>
 			<id>heroku</id>
 			<activation>

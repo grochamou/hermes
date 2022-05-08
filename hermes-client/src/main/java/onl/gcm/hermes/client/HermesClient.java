@@ -17,8 +17,8 @@ import org.springframework.web.client.RestTemplate;
 @PropertySource("classpath:hermes-${spring.profiles.active}.properties")
 public abstract class HermesClient {
 
-    public static final String REST_CLIENT_RESPONSE_EXCEPTION_HEADER = "RestClientResponseException";
-    public static final String VERSION_HEADER = "version";
+    public static final String EXCEPTION_MESSAGE_HEADER = "Exception.message";
+    public static final String HERMES_CLIENT_VERSION_HEADER = "HermesClient.version";
 
     private static final String LF = "\\n";
     private static final String BACKSLASH = "\\";
@@ -27,31 +27,48 @@ public abstract class HermesClient {
     @Value("${hermes.server.url}")
     private String hermesServerUrl;
 
-    @Value("${version}")
+    @Value("${hermes.client.version}")
     private String version;
 
-    @Value("${timeout}")
-    private int timeout;
+    @Value("${http.request.connect.timeout}")
+    private int httpRequestConnectTimeout;
 
-    @Value("${hermes.path.alive}")
-    private String hermesAlivePath;
+    @Value("${http.request.read.timeout}")
+    private int httpRequestReadTimeout;
+
+    @Value("${hermes.server.path.alive}")
+    private String hermesServerAlivePath;
 
     public String getVersion() {
         return version;
     }
 
+    public int getHttpRequestConnectTimeout() {
+        return httpRequestConnectTimeout;
+    }
+
+    public void setHttpRequestConnectTimeout(int httpRequestConnectTimeout) {
+        this.httpRequestConnectTimeout = httpRequestConnectTimeout;
+    }
+
+    public int getHttpRequestReadTimeout() {
+        return httpRequestReadTimeout;
+    }
+
+    public void setHttpRequestReadTimeout(int httpRequestReadTimeout) {
+        this.httpRequestReadTimeout = httpRequestReadTimeout;
+    }
+
     public static String encodeExceptionMessage(Exception e) {
+        // "String#replace" should be preferred to "String#replaceAll".
         return e.getMessage().replace(LF, BACKSLASH + LF).replace(TAB, BACKSLASH + TAB);
     }
 
-    public RestTemplate createRestTemplate() {
-        return new RestTemplate(createClientHttpRequestFactory());
-    }
-
     // Get the embedded exception message in the headers if it is a
-    // RestClientResponseException, else get the normal exception message.
-    public String getErrorMessage(Exception e) {
-        String errorMessage = e.getMessage();
+    // HttpServerErrorException or a RestClientResponseException, else get the
+    // normal exception message.
+    public static String getErrorMessage(Exception e) {
+        String message = e.getMessage();
         HttpHeaders headers = null;
         if (e instanceof HttpServerErrorException) {
             HttpServerErrorException ex = (HttpServerErrorException) e;
@@ -60,13 +77,17 @@ public abstract class HermesClient {
             RestClientResponseException ex = (RestClientResponseException) e;
             headers = ex.getResponseHeaders();
         }
-        String headerErrorMessage = headers == null ? null : headers.getFirst(REST_CLIENT_RESPONSE_EXCEPTION_HEADER);
-        return headerErrorMessage == null ? errorMessage : headerErrorMessage;
+        String messageInHeader = headers == null ? null : headers.getFirst(EXCEPTION_MESSAGE_HEADER);
+        return messageInHeader == null ? message : messageInHeader;
     }
 
-    public boolean isHermesAlive() {
+    public RestTemplate createRestTemplate() {
+        return new RestTemplate(createClientHttpRequestFactory());
+    }
+
+    public boolean isHermesServerAlive() {
         try {
-            process(hermesServerUrl + hermesAlivePath, Void.class);
+            process(hermesServerUrl + hermesServerAlivePath, Void.class);
         } catch (RestClientException e) {
             return false;
         }
@@ -83,7 +104,18 @@ public abstract class HermesClient {
     }
 
     protected HermesClient() {
-        // Protected constructor to prevent instantiation.
+        // Protected constructor to prevent manual instantiation.
+    }
+
+    private ClientHttpRequestFactory createClientHttpRequestFactory() {
+        HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+        clientHttpRequestFactory.setConnectTimeout(httpRequestConnectTimeout);
+        clientHttpRequestFactory.setReadTimeout(httpRequestReadTimeout);
+        return clientHttpRequestFactory;
+    }
+
+    protected String getHermesServerUrl() {
+        return hermesServerUrl;
     }
 
     protected <T> T process(String url, Class<T> responseType, Object... uriVariables)
@@ -93,19 +125,9 @@ public abstract class HermesClient {
         return response.getBody();
     }
 
-    protected String getHermesServerUrl() {
-        return hermesServerUrl;
-    }
-
-    private ClientHttpRequestFactory createClientHttpRequestFactory() {
-        HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-        clientHttpRequestFactory.setConnectTimeout(timeout);
-        return clientHttpRequestFactory;
-    }
-
     private <T> HttpEntity<T> createRequestEntity() {
         HttpHeaders headers = new HttpHeaders();
-        headers.addIfAbsent(VERSION_HEADER, getVersion());
+        headers.set(HERMES_CLIENT_VERSION_HEADER, getVersion());
         return new HttpEntity<>(null, headers);
     }
 
