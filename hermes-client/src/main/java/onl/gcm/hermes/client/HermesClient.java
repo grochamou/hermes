@@ -59,9 +59,10 @@ public abstract class HermesClient {
         this.httpRequestReadTimeout = httpRequestReadTimeout;
     }
 
+    @SuppressWarnings("java:S5361")
     public static String encodeExceptionMessage(Exception e) {
         // "String#replace" should be preferred to "String#replaceAll".
-        return e.getMessage().replace(LF, BACKSLASH + LF).replace(TAB, BACKSLASH + TAB);
+        return e.getMessage().replaceAll(LF, BACKSLASH + LF).replaceAll(TAB, BACKSLASH + TAB);
     }
 
     // Get the embedded exception message in the headers if it is a
