@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @PropertySource("classpath:hermes-${spring.profiles.active}.properties")
 public class ServerController extends HermesController {
 
-    @GetMapping("${hermes.path.alive}")
+    @GetMapping("${hermes.server.path.alive}")
     protected ResponseEntity<Void> isAlive() {
         return ResponseEntity.ok().build();
     }
