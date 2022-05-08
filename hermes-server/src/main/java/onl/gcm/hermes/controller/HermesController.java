@@ -92,15 +92,15 @@ public class HermesController {
         logEntry.setClientVersion(currentClientVersion);
         // TODO: Publish log entry somewhere.
 
-        String msg = MessageFormat.format(FROM_TO_PATTERN, remoteApplication == null ? remoteHost : remoteApplication,
-                path, url);
+        String host = remoteApplication == null ? remoteHost : remoteApplication;
+        String msg = MessageFormat.format(FROM_TO_PATTERN, host, path, url);
         logger.info(msg);
         if (!currentClientVersion.equals(requestClientVersion)) {
             if (requestClientVersion == null) {
-                msg = MessageFormat.format(UNKNOWN_CLIENT_PATTERN, path);
+                msg = MessageFormat.format(UNKNOWN_CLIENT_PATTERN, host);
                 logger.warn(msg);
             } else {
-                msg = MessageFormat.format(VERSION_MISMATCH_PATTERN, path, requestClientVersion, currentClientVersion);
+                msg = MessageFormat.format(VERSION_MISMATCH_PATTERN, host, requestClientVersion, currentClientVersion);
                 logger.warn(msg);
             }
         }
