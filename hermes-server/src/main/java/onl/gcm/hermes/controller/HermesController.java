@@ -31,7 +31,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import onl.gcm.hermes.client.HermesClient;
-import onl.gcm.hermes.logging.LogEntry;
+import onl.gcm.hermes.db.model.LogEntry;
+import onl.gcm.hermes.db.service.LogEntryService;
 import onl.gcm.hermes.server.ResponseEntityCache;
 import onl.gcm.hermes.server.SpringUtils;
 
@@ -64,6 +65,9 @@ public class HermesController {
     @Autowired
     private HermesClient hermesClient;
 
+    @Autowired
+    LogEntryService logEntryService;
+
     private static HashMap<String, String> applications;
 
     private ResponseEntityCache cache;
@@ -90,7 +94,6 @@ public class HermesController {
         logEntry.setApplicationUrl(url);
         logEntry.setRequestClientVersion(requestClientVersion);
         logEntry.setClientVersion(currentClientVersion);
-        // TODO: Publish log entry somewhere.
 
         String host = remoteApplication == null ? remoteHost : remoteApplication;
         String msg = MessageFormat.format(FROM_TO_PATTERN, host, path, url);
@@ -110,7 +113,8 @@ public class HermesController {
 
     protected <T> ResponseEntity<T> processGet(boolean cacheable, String url, Class<T> responseType,
             Object... uriVariables) throws RestClientException {
-        LogEntry entry = begin(url);
+        LogEntry logEntry = begin(url);
+
         ResponseEntity<T> response = cacheable ? cache.getCache(url, responseType, uriVariables) : null;
         if (response == null) {
             try {
@@ -118,55 +122,60 @@ public class HermesController {
                 if (cacheable) {
                     cache.putCache(url, responseType, response, uriVariables);
                 }
-                end(entry, response);
+                end(logEntry, response);
             } catch (RestClientException e) {
                 response = fail(e);
-                end(entry, e);
+                end(logEntry, e);
             }
         } else {
-            entry.setCached(true);
-            end(entry, response);
+            logEntry.setCached(true);
+            end(logEntry, response);
         }
+
+        logEntryService.create(logEntry);
         return response;
     }
 
     protected <T> ResponseEntity<T> processPost(String url, @RequestBody T request, Class<T> responseType,
             Object... uriVariables) throws RestClientException {
-        LogEntry entry = begin(url);
+        LogEntry logEntry = begin(url);
+
         ResponseEntity<T> response = null;
         try {
             response = hermesClient.createRestTemplate().postForEntity(url, request, responseType, uriVariables);
-            end(entry, response);
+            end(logEntry, response);
         } catch (RestClientException e) {
             response = fail(e);
-            end(entry, e);
+            end(logEntry, e);
         }
+
+        logEntryService.create(logEntry);
         return response;
     }
 
-    protected void end(LogEntry entry, ResponseEntity<?> response) {
-        entry.setDuration(System.currentTimeMillis() - entry.getDate().getTime());
-        entry.setResponseStatus(response.getStatusCode().toString());
-        String msg = MessageFormat.format(CACHED_FROM_TO_PATTERN, entry.getApplicationUrl(), entry.getResponseStatus(),
-                entry.isCached() ? CACHED : NOT_CACHED, entry.getDuration());
+    protected void end(LogEntry logEntry, ResponseEntity<?> response) {
+        logEntry.setDuration(System.currentTimeMillis() - logEntry.getDate().getTime());
+        logEntry.setResponseStatus(response.getStatusCode().toString());
+        String msg = MessageFormat.format(CACHED_FROM_TO_PATTERN, logEntry.getApplicationUrl(),
+                logEntry.getResponseStatus(), logEntry.isCached() ? CACHED : NOT_CACHED, logEntry.getDuration());
         logger.info(msg);
     }
 
-    protected void end(LogEntry entry, HttpStatusCodeException e) {
-        entry.setDuration(System.currentTimeMillis() - entry.getDate().getTime());
-        entry.setResponseStatus(e.getStatusCode().toString());
-        entry.setErrorMessage(HermesClient.getErrorMessage(e));
-        String msg = MessageFormat.format(CACHED_FROM_TO_PATTERN, entry.getApplicationUrl(), entry.getErrorMessage(),
-                entry.isCached() ? CACHED : NOT_CACHED, entry.getDuration());
+    protected void end(LogEntry logEntry, HttpStatusCodeException e) {
+        logEntry.setDuration(System.currentTimeMillis() - logEntry.getDate().getTime());
+        logEntry.setResponseStatus(e.getStatusCode().toString());
+        logEntry.setErrorMessage(HermesClient.getErrorMessage(e));
+        String msg = MessageFormat.format(CACHED_FROM_TO_PATTERN, logEntry.getApplicationUrl(),
+                logEntry.getErrorMessage(), logEntry.isCached() ? CACHED : NOT_CACHED, logEntry.getDuration());
         logger.info(msg);
     }
 
-    protected void end(LogEntry entry, RestClientException e) {
-        entry.setDuration(System.currentTimeMillis() - entry.getDate().getTime());
-        entry.setResponseStatus(e.getClass().getName());
-        entry.setErrorMessage(HermesClient.getErrorMessage(e));
-        String msg = MessageFormat.format(CACHED_FROM_TO_PATTERN, entry.getApplicationUrl(), entry.getErrorMessage(),
-                entry.isCached() ? CACHED : NOT_CACHED, entry.getDuration());
+    protected void end(LogEntry logEntry, RestClientException e) {
+        logEntry.setDuration(System.currentTimeMillis() - logEntry.getDate().getTime());
+        logEntry.setResponseStatus(e.getClass().getName());
+        logEntry.setErrorMessage(HermesClient.getErrorMessage(e));
+        String msg = MessageFormat.format(CACHED_FROM_TO_PATTERN, logEntry.getApplicationUrl(),
+                logEntry.getErrorMessage(), logEntry.isCached() ? CACHED : NOT_CACHED, logEntry.getDuration());
         logger.info(msg);
     }
 

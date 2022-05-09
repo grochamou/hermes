@@ -43,6 +43,10 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
@@ -122,6 +126,12 @@
 			<properties>
 				<spring.profiles.active>development</spring.profiles.active>
 			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>com.h2database</groupId>
+					<artifactId>h2</artifactId>
+				</dependency>
+			</dependencies>
 		</profile>
 
 		<profile>
@@ -137,9 +147,8 @@
 			</properties>
 			<dependencies>
 				<dependency>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-tomcat</artifactId>
-					<scope>provided</scope>
+					<groupId>com.h2database</groupId>
+					<artifactId>h2</artifactId>
 				</dependency>
 			</dependencies>
 		</profile>
@@ -157,9 +166,8 @@
 			</properties>
 			<dependencies>
 				<dependency>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-tomcat</artifactId>
-					<scope>provided</scope>
+					<groupId>com.h2database</groupId>
+					<artifactId>h2</artifactId>
 				</dependency>
 			</dependencies>
 			<build>
