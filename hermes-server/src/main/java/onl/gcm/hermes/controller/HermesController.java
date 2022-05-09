@@ -188,8 +188,6 @@ public class HermesController {
 
     private static String getRemoteApplication(String remoteHost) {
         buildApplicationMap();
-
-        System.out.println("host = " + remoteHost);
         return applications.get(LOCALHOST_ADDRESS.equals(remoteHost) ? LOCALHOST_HOST : remoteHost);
     }
 
@@ -224,9 +222,6 @@ public class HermesController {
                         // Nothing to do.
                     }
                 });
-
-        applications.entrySet().stream()
-                .forEach(entry -> System.out.println(entry.getKey() + " = " + entry.getValue()));
     }
 
     // https://stackoverflow.com/questions/23506471/access-all-environment-properties-as-a-map-or-properties-object
