@@ -46,6 +46,7 @@ public class HermesController {
     private static final String CACHED_FROM_TO_PATTERN = "{0} -> {1} ({2}{3} ms)";
     private static final String CACHED = "cached, ";
     private static final String NOT_CACHED = "";
+    private static final String CLIENT_URL_SUFFIX = ".client.url";
     private static final String SERVER_URL_SUFFIX = ".server.url";
     private static final String NAME_SUFFIX = ".name";
     private static final String LOCALHOST_ADDRESS = "127.0.0.1";
@@ -187,6 +188,8 @@ public class HermesController {
 
     private static String getRemoteApplication(String remoteHost) {
         buildApplicationMap();
+
+        System.out.println("host = " + remoteHost);
         return applications.get(LOCALHOST_ADDRESS.equals(remoteHost) ? LOCALHOST_HOST : remoteHost);
     }
 
@@ -208,7 +211,9 @@ public class HermesController {
 
         Properties properties = getAllProperties();
         applications = new HashMap<>();
-        properties.entrySet().stream().filter(e -> e.getKey().toString().endsWith(SERVER_URL_SUFFIX))
+        properties.entrySet().stream()
+                .filter(e -> e.getKey().toString().endsWith(SERVER_URL_SUFFIX)
+                        || e.getKey().toString().endsWith(CLIENT_URL_SUFFIX))
                 .forEach(e -> {
                     try {
                         URL url = new URL(e.getValue().toString());
@@ -219,6 +224,9 @@ public class HermesController {
                         // Nothing to do.
                     }
                 });
+
+        applications.entrySet().stream()
+                .forEach(entry -> System.out.println(entry.getKey() + " = " + entry.getValue()));
     }
 
     // https://stackoverflow.com/questions/23506471/access-all-environment-properties-as-a-map-or-properties-object
