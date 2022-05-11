@@ -24,7 +24,6 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -67,7 +66,7 @@ public class HermesController {
     private HermesClient hermesClient;
 
     @Autowired
-    LogEntryService logEntryService;
+    private LogEntryService logEntryService;
 
     private static HashMap<String, String> applications;
 
@@ -159,15 +158,6 @@ public class HermesController {
         logEntry.setResponseStatus(response.getStatusCode().toString());
         String msg = MessageFormat.format(CACHED_FROM_TO_PATTERN, logEntry.getApplicationUrl(),
                 logEntry.getResponseStatus(), logEntry.isCached() ? CACHED : NOT_CACHED, logEntry.getDuration());
-        logger.info(msg);
-    }
-
-    protected void end(LogEntry logEntry, HttpStatusCodeException e) {
-        logEntry.setDuration(System.currentTimeMillis() - logEntry.getDate().getTime());
-        logEntry.setResponseStatus(e.getStatusCode().toString());
-        logEntry.setErrorMessage(HermesClient.getErrorMessage(e));
-        String msg = MessageFormat.format(CACHED_FROM_TO_PATTERN, logEntry.getApplicationUrl(),
-                logEntry.getErrorMessage(), logEntry.isCached() ? CACHED : NOT_CACHED, logEntry.getDuration());
         logger.info(msg);
     }
 
