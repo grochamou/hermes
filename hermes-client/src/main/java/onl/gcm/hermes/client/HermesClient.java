@@ -1,5 +1,15 @@
 package onl.gcm.hermes.client;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpEntity;
@@ -20,27 +30,69 @@ public abstract class HermesClient {
     public static final String EXCEPTION_MESSAGE_HEADER = "Exception.message";
     public static final String HERMES_CLIENT_VERSION_HEADER = "HermesClient.version";
 
+    private static final String HERMES_PROPERTIES = "/hermes.properties";
+    private static final String ENVIRONMENT_PROPERTIES = "/hermes-" + System.getProperty("spring.profiles.active")
+            + ".properties";
+    private static final String PROPERTY_PATTERN = "[${}]";
+    private static final String EMPTY_STRING = "";
     private static final String LF = "\\n";
     private static final String BACKSLASH = "\\";
     private static final String TAB = "\\t";
 
     @Value("${hermes.server.url}")
-    private String hermesServerUrl;
+    protected String hermesServerUrl;
 
     @Value("${hermes.client.version}")
-    private String version;
+    protected String version;
 
     @Value("${http.request.connect.timeout}")
-    private int httpRequestConnectTimeout;
+    protected int httpRequestConnectTimeout;
 
     @Value("${http.request.read.timeout}")
-    private int httpRequestReadTimeout;
+    protected int httpRequestReadTimeout;
 
     @Value("${hermes.server.path.alive}")
-    private String hermesServerAlivePath;
+    protected String hermesServerAlivePath;
 
     public String getVersion() {
         return version;
+    }
+
+    // Initialization for non Spring projects.
+    @SuppressWarnings({ "java:S112", "java:S3011" })
+    // Generic exceptions should never be thrown.
+    public void initialize() throws IOException, IllegalArgumentException, RuntimeException {
+        Properties properties = new Properties();
+        properties.load(getClass().getResourceAsStream(HERMES_PROPERTIES));
+        Properties environmentProperties = new Properties();
+        environmentProperties.load(getClass().getResourceAsStream(ENVIRONMENT_PROPERTIES));
+        environmentProperties.forEach(properties::put);
+
+        // Using reflection to detect @Value fields and assign them to their property
+        // value.
+        getAllFields(getClass()).stream().forEach(field -> {
+            Value value = field.getAnnotation(Value.class);
+            if (value != null) {
+                String property = value.value().replaceAll(PROPERTY_PATTERN, EMPTY_STRING);
+                try {
+                    if (field.getType().equals(int.class)) {
+                        // Reflection should not be used to increase accessibility of classes, methods,
+                        // or fields.
+                        field.set(this, Integer.parseInt(properties.getProperty(property)));
+                    } else if (field.getType().equals(long.class)) {
+                        // Reflection should not be used to increase accessibility of classes, methods,
+                        // or fields.
+                        field.set(this, Long.parseLong(properties.getProperty(property)));
+                    } else {
+                        // Reflection should not be used to increase accessibility of classes, methods,
+                        // or fields.
+                        field.set(this, properties.get(property));
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e); // Generic exceptions should never be thrown.
+                }
+            }
+        });
     }
 
     public int getHttpRequestConnectTimeout() {
@@ -106,6 +158,22 @@ public abstract class HermesClient {
 
     protected HermesClient() {
         // Protected constructor to prevent manual instantiation.
+    }
+
+    // https://www.baeldung.com/java-reflection-class-fields
+    @SuppressWarnings("rawtypes")
+    // Raw types should not be used.
+    private List<Field> getAllFields(Class clazz) {
+        if (clazz == null) {
+            return Collections.emptyList();
+        }
+
+        List<Field> result = new ArrayList<>(getAllFields(clazz.getSuperclass()));
+        List<Field> filteredFields = Arrays.stream(clazz.getDeclaredFields())
+                .filter(f -> Modifier.isPublic(f.getModifiers()) || Modifier.isProtected(f.getModifiers()))
+                .collect(Collectors.toList());
+        result.addAll(filteredFields);
+        return result;
     }
 
     private ClientHttpRequestFactory createClientHttpRequestFactory() {

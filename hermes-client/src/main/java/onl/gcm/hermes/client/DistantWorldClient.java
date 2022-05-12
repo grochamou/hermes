@@ -10,22 +10,22 @@ import onl.gcm.hermes.dto.DistantWorldDTO;
 public class DistantWorldClient extends HermesClient {
 
     @Value("${distantworld.path.alive}")
-    private String alivePath;
+    protected String alivePath;
 
     @Value("${distantworld.path.test}")
-    private String testPath;
+    protected String testPath;
 
     @Value("${distantworld.path.nocontent}")
-    private String noContentPath;
+    protected String noContentPath;
 
     @Value("${distantworld.path.notfound}")
-    private String notFoundPath;
+    protected String notFoundPath;
 
     @Value("${distantworld.path.crash}")
-    private String crashPath;
+    protected String crashPath;
 
     @Value("${distantworld.path}")
-    private String distantWorldPath;
+    protected String distantWorldPath;
 
     public String getAlivePath() {
         return alivePath;
