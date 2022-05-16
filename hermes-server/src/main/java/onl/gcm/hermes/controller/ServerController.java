@@ -15,4 +15,10 @@ public class ServerController extends HermesController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("${hermes.server.path.cache.clear}")
+    protected ResponseEntity<Void> emptyCache() {
+        clearCache();
+        return ResponseEntity.ok().build();
+    }
+
 }

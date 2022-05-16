@@ -30,10 +30,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import onl.gcm.hermes.client.HermesClient;
+import onl.gcm.hermes.client.SpringUtils;
 import onl.gcm.hermes.db.model.LogEntry;
 import onl.gcm.hermes.db.service.LogEntryService;
 import onl.gcm.hermes.server.ResponseEntityCache;
-import onl.gcm.hermes.server.SpringUtils;
 
 @PropertySource("classpath:servers.properties")
 @PropertySource("classpath:servers-${spring.profiles.active}.properties")
@@ -78,6 +78,10 @@ public class HermesController {
 
     protected void setCachePruneDelay(long pruneDelay) {
         cache.setPruneDelay(pruneDelay);
+    }
+
+    protected void clearCache() {
+        cache.clearCache();
     }
 
     protected LogEntry begin(String url) {
