@@ -20,7 +20,9 @@ public class SpringUtils {
 
     private HashMap<Class<?>, Object> beans;
 
-    @SuppressWarnings("unchecked")
+    // getBean will get the specified bean from the Spring application context or
+    // instantiate it if Spring is not running.
+    @SuppressWarnings({ "unchecked", "java:S112" })
     public static <T> T getBean(Class<T> requiredType) {
         T bean = null;
         if (instance == null) {
@@ -41,7 +43,7 @@ public class SpringUtils {
                     }
                     instance.beans.put(requiredType, bean);
                 } catch (InstantiationException | IllegalAccessException | IOException | RuntimeException e) {
-                    // Nothing to do.
+                    throw new RuntimeException(e); // Generic exceptions should never be thrown.
                 }
             }
         } else {
