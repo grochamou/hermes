@@ -1,0 +1,15 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Hermes Server",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "onl.gcm.hermes.server.HermesServerApplication",
+            "projectName": "hermes-server",
+            "vmArgs": "-Dspring.profiles.active=development",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
