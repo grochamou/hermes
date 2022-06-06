@@ -140,7 +140,7 @@ public class HermesController {
         return response;
     }
 
-    protected <T> ResponseEntity<T> processPost(String url, @RequestBody T request, Class<T> responseType,
+    protected <T> ResponseEntity<T> processPost(String url, @RequestBody Object request, Class<T> responseType,
             Object... uriVariables) throws RestClientException {
         LogEntry logEntry = begin(url);
 
