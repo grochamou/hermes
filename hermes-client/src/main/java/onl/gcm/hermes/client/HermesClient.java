@@ -140,7 +140,7 @@ public abstract class HermesClient {
 
     public boolean isHermesServerAlive() {
         try {
-            process(hermesServerUrl + hermesServerAlivePath, Void.class);
+            process(hermesServerUrl + hermesServerAlivePath, HttpMethod.GET, Void.class, null);
         } catch (RestClientException e) {
             return false;
         }
@@ -149,7 +149,7 @@ public abstract class HermesClient {
 
     public boolean isAlive() {
         try {
-            process(hermesServerUrl + getCompleteAlivePath(), Void.class);
+            process(hermesServerUrl + getCompleteAlivePath(), HttpMethod.GET, Void.class, null);
         } catch (RestClientException e) {
             return false;
         }
@@ -187,17 +187,17 @@ public abstract class HermesClient {
         return hermesServerUrl;
     }
 
-    protected <T> T process(String url, Class<T> responseType, Object... uriVariables)
+    protected <T> T process(String url, HttpMethod method, Class<T> responseType, Object body, Object... uriVariables)
             throws RestClientException {
-        ResponseEntity<T> response = createRestTemplate().exchange(url, HttpMethod.GET, createRequestEntity(),
+        ResponseEntity<T> response = createRestTemplate().exchange(url, method, createRequestEntity(body),
                 responseType, uriVariables);
         return response.getBody();
     }
 
-    private <T> HttpEntity<T> createRequestEntity() {
+    private HttpEntity<?> createRequestEntity(Object body) {
         HttpHeaders headers = new HttpHeaders();
         headers.set(HERMES_CLIENT_VERSION_HEADER, getVersion());
-        return new HttpEntity<>(null, headers);
+        return new HttpEntity<>(body, headers);
     }
 
     protected abstract String getCompleteAlivePath();

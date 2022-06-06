@@ -1,6 +1,7 @@
 package onl.gcm.hermes.client;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 
@@ -53,19 +54,20 @@ public class DistantWorldClient extends HermesClient {
     }
 
     public DistantWorldDTO getTest(String id) throws RestClientException {
-        return process(getHermesServerUrl() + distantWorldPath + testPath, DistantWorldDTO.class, id);
+        return process(getHermesServerUrl() + distantWorldPath + testPath, HttpMethod.GET, DistantWorldDTO.class, null,
+                id);
     }
 
     public void getNoContent() throws RestClientException {
-        process(getHermesServerUrl() + distantWorldPath + noContentPath, Void.class);
+        process(getHermesServerUrl() + distantWorldPath + noContentPath, HttpMethod.GET, Void.class, null);
     }
 
     public void getNotFound() throws RestClientException {
-        process(getHermesServerUrl() + distantWorldPath + notFoundPath, Void.class);
+        process(getHermesServerUrl() + distantWorldPath + notFoundPath, HttpMethod.GET, Void.class, null);
     }
 
     public void getCrash() throws RestClientException {
-        process(getHermesServerUrl() + distantWorldPath + crashPath, Void.class);
+        process(getHermesServerUrl() + distantWorldPath + crashPath, HttpMethod.GET, Void.class, null);
     }
 
 }
