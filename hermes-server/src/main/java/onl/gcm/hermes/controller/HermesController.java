@@ -157,6 +157,22 @@ public class HermesController {
         return response;
     }
 
+    protected <T> ResponseEntity<T> processDelete(String url, Object... uriVariables) throws RestClientException {
+        LogEntry logEntry = begin(url);
+
+        ResponseEntity<T> response = null;
+        try {
+            hermesClient.createRestTemplate().delete(url, uriVariables);
+            end(logEntry, response);
+        } catch (RestClientException e) {
+            response = fail(e);
+            end(logEntry, e);
+        }
+
+        logEntryService.create(logEntry);
+        return response;
+    }
+
     protected void end(LogEntry logEntry, ResponseEntity<?> response) {
         logEntry.setDuration(System.currentTimeMillis() - logEntry.getDate().getTime());
         logEntry.setResponseStatus(response.getStatusCode().toString());
