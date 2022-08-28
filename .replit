@@ -1,4 +1,4 @@
-compile = "./mvnw install"
+compile = "./mvnw clean install -Preplit"
 run = "./mvnw spring-boot:run -Dspring-boot.run.profiles=replit -f hermes-server/pom.xml"
 hidden = ["**/*.class"]
 
@@ -24,7 +24,7 @@ channel = "stable-21_11"
 support = true
 
 [debugger.compile]
-command = "./mvnw install"
+command = "./mvnw clean install -Preplit"
 
 [debugger.interactive]
 transport = "localhost:0"
