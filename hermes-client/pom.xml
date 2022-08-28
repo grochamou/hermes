@@ -75,6 +75,32 @@
 		</profile>
 
 		<profile>
+			<id>testing</id>
+			<activation>
+				<property>
+					<name>spring.profiles.active</name>
+					<value>testing</value>
+				</property>
+			</activation>
+			<properties>
+				<spring.profiles.active>testing</spring.profiles.active>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>production</id>
+			<activation>
+				<property>
+					<name>spring.profiles.active</name>
+					<value>production</value>
+				</property>
+			</activation>
+			<properties>
+				<spring.profiles.active>production</spring.profiles.active>
+			</properties>
+		</profile>
+
+		<profile>
 			<id>docker</id>
 			<activation>
 				<property>
@@ -84,19 +110,6 @@
 			</activation>
 			<properties>
 				<spring.profiles.active>docker</spring.profiles.active>
-			</properties>
-		</profile>
-
-		<profile>
-			<id>heroku</id>
-			<activation>
-				<property>
-					<name>spring.profiles.active</name>
-					<value>heroku</value>
-				</property>
-			</activation>
-			<properties>
-				<spring.profiles.active>heroku</spring.profiles.active>
 			</properties>
 		</profile>
 	</profiles>

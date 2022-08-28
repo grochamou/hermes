@@ -1,1 +1,0 @@
-./mvnw clean install -Pheroku

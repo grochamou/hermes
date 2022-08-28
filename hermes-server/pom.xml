@@ -154,15 +154,15 @@
 		</profile>
 
 		<profile>
-			<id>heroku</id>
+			<id>testing</id>
 			<activation>
 				<property>
 					<name>spring.profiles.active</name>
-					<value>heroku</value>
+					<value>testing</value>
 				</property>
 			</activation>
 			<properties>
-				<spring.profiles.active>heroku</spring.profiles.active>
+				<spring.profiles.active>testing</spring.profiles.active>
 			</properties>
 			<dependencies>
 				<dependency>
@@ -170,18 +170,25 @@
 					<artifactId>h2</artifactId>
 				</dependency>
 			</dependencies>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.heroku.sdk</groupId>
-						<artifactId>heroku-maven-plugin</artifactId>
-						<configuration>
-							<appName>gcm-hermes-server</appName>
-							<jdkVersion>1.8</jdkVersion>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
+		</profile>
+
+		<profile>
+			<id>production</id>
+			<activation>
+				<property>
+					<name>spring.profiles.active</name>
+					<value>production</value>
+				</property>
+			</activation>
+			<properties>
+				<spring.profiles.active>production</spring.profiles.active>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>com.h2database</groupId>
+					<artifactId>h2</artifactId>
+				</dependency>
+			</dependencies>
 		</profile>
 	</profiles>
 
