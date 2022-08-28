@@ -135,25 +135,6 @@
 		</profile>
 
 		<profile>
-			<id>docker</id>
-			<activation>
-				<property>
-					<name>spring.profiles.active</name>
-					<value>docker</value>
-				</property>
-			</activation>
-			<properties>
-				<spring.profiles.active>docker</spring.profiles.active>
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>com.h2database</groupId>
-					<artifactId>h2</artifactId>
-				</dependency>
-			</dependencies>
-		</profile>
-
-		<profile>
 			<id>testing</id>
 			<activation>
 				<property>
@@ -182,6 +163,44 @@
 			</activation>
 			<properties>
 				<spring.profiles.active>production</spring.profiles.active>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>com.h2database</groupId>
+					<artifactId>h2</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+
+		<profile>
+			<id>docker</id>
+			<activation>
+				<property>
+					<name>spring.profiles.active</name>
+					<value>docker</value>
+				</property>
+			</activation>
+			<properties>
+				<spring.profiles.active>docker</spring.profiles.active>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>com.h2database</groupId>
+					<artifactId>h2</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+
+		<profile>
+			<id>replit</id>
+			<activation>
+				<property>
+					<name>spring.profiles.active</name>
+					<value>replit</value>
+				</property>
+			</activation>
+			<properties>
+				<spring.profiles.active>replit</spring.profiles.active>
 			</properties>
 			<dependencies>
 				<dependency>
