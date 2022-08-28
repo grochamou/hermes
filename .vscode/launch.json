@@ -4,7 +4,7 @@
             "type": "java",
             "name": "Hermes Server",
             "request": "launch",
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/hermes-server",
             "console": "internalConsole",
             "mainClass": "onl.gcm.hermes.server.HermesServerApplication",
             "projectName": "hermes-server",
