@@ -1,5 +1,5 @@
-compile = "./mvnw clean install -Preplit"
-run = "./mvnw spring-boot:run -Dspring-boot.run.profiles=replit -f hermes-server/pom.xml"
+compile = "mvn package -Preplit"
+run = "java -Dspring.profiles.active=replit -jar hermes-server/target/hermes-server-0.0.1-SNAPSHOT.war"
 hidden = ["**/*.class"]
 
 [packager]
@@ -24,7 +24,7 @@ channel = "stable-21_11"
 support = true
 
 [debugger.compile]
-command = "./mvnw clean install -Preplit"
+command = "mvn package -Preplit"
 
 [debugger.interactive]
 transport = "localhost:0"
@@ -55,4 +55,4 @@ type = "request"
 
 [debugger.interactive.launchMessage.arguments]
 classPaths = ["."]
-mainClass = "HermesServerApplication"
+mainClass = "onl.gcm.hermes.server.HermesServerApplication"
